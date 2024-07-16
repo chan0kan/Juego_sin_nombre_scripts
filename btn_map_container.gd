@@ -45,22 +45,3 @@ func maps_btn():
 		print(btn_maps)
 
 		print($H_btn_aling.get_child(i))
-
-		
-
-
-			
-
-
-
-		 
-
-
-
-	
-	
-
-
-
-	
-
