@@ -35,7 +35,7 @@ func _physics_process(delta):
 # Hasta acá sabes lo que hace (define las propiedades del salto)
 
 	# Manejar el ataque
-	if (Input.is_action_just_pressed(player_control) and Input.is_key_pressed(keys_control[0].unicode)) and not attacking:
+	if (Input.is_action_just_pressed(player_control) and Input.is_key_pressed(OS.get_keycode_string(keys_control[4].keycode).to_int())) and not attacking:
 		anim_player.play("attack")
 		# anim.play("attack")   Aca tenia un ("attack", false) para que no se repdoduzca en bucle pero lo arregle en el nodo (y a mi me lo rompe)
 		attacking = true  # Establece el estado de ataque como verdadero
@@ -45,7 +45,7 @@ func _physics_process(delta):
 	if not attacking: # Si NO esta atacando puede ejecutar todo lo que sigue...
 
 	# Manejar el movimiento vertical
-		if (Input.is_action_just_pressed(player_control) and Input.is_key_pressed(KEY_W)) and is_on_floor():
+		if (Input.is_action_just_pressed(player_control) and Input.is_key_pressed(OS.get_keycode_string(keys_control[0].keycode).to_int())) and is_on_floor():
 			velocity.y = JUMP_VELOCITY
 
 		# Manejar el movimiento horizontal

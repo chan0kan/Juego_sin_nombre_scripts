@@ -1,16 +1,19 @@
 class_name maps_script
-extends PanelContainer
+extends Control
 
 const MAPS_SCENE = preload("res://Scenes/maps.tscn")
 
 @onready var maps_node = MAPS_SCENE.instantiate()
 
 var maps_path : Array
-var btn_maps : Array
 
-var label_map = Label.new()
-var btn_map = TextureButton.new()
-var texture_focus = TextureRect.new()
+@onready var map_img_show = $Panel/map_container/map_img 
+
+var label_map : Label
+var btn_map : TextureButton
+var texture_focus : TextureRect
+
+@onready var players = get_node("/root/players")
 
 var btn_elements = [btn_map, label_map, texture_focus]
 
@@ -27,21 +30,49 @@ func maps_btn():
 
 		print("Mapa numero " + str(i) + " " + maps_path[i])
 
-		btn_maps.append(btn_elements)
+		if btn_elements.size() > 1:
 
-		for element in range(0, btn_maps[i].size(), 1):
+			for element in btn_elements.size():
 
-			if element == 0:
-				
-				$H_btn_aling.add_child(btn_maps[i][element])
-				btn_maps[i][element].name = maps_node.get_child(i).name
+				if element == 0:
 
-				continue
+					btn_elements[element] = TextureButton.new()
+					btn_elements[element].name = maps_node.get_child(i).name
+					btn_elements[element].texture_normal = load("res://Sprites/HUD/btn_menu.png")
+					btn_elements[element].texture_focused = load("res://Sprites/HUD/focus_1P.png")
+					btn_elements[element].pressed.connect(self.on_btn_map_pressed.bind(maps_path[i]))
+					btn_elements[element].focus_entered.connect(self.on_btn_map_focused.bind(maps_node.get_child(i)))
 
-			else:
+					$Panel/btn_map_container/H_btn_aling.add_child(btn_elements[element])
 
-				$H_btn_aling.get_child(i).add_child(btn_maps[i][element])
+					btn_elements[element].grab_focus()
 
-		print(btn_maps)
+					continue
 
-		print($H_btn_aling.get_child(i))
+				if element == 1:
+
+					btn_elements[element] = Label.new()
+					btn_elements[0].add_child(btn_elements[element])
+
+					continue
+
+				else:
+
+					btn_elements[element] = TextureRect.new()
+					btn_elements[0].add_child(btn_elements[element])
+
+					break
+
+func on_btn_map_pressed(path):
+
+	get_tree().change_scene_to_file(path)
+	print_debug("Mapa cambiado a" + " " + str(path))
+
+	for i in range(0, players.get_child_count()):
+		
+		players.get_child(i).process_mode = Node.PROCESS_MODE_INHERIT
+		print("player 1 controls : " + player_1.keys_control)
+
+func on_btn_map_focused(map):
+
+	map_img_show.texture = map.get_child(1).get_texture()

@@ -121,7 +121,7 @@ func on_btn_char_pressed(btn_array):
 			char_clone.player_control = "player_2"
 			player_1.player_control = "player_1"
 
-			for i in InputMap.action_get_events(player_1.player_control):
+			for i in InputMap.action_get_events(char_clone.player_control):
 				char_clone.keys_control.append(i)
 
 		else:
@@ -144,8 +144,7 @@ func on_btn_char_pressed(btn_array):
 		player_1.player_control = "player_1"
 
 		for i in InputMap.action_get_events(player_1.player_control):
-			if i as InputEventKey:
-				player_1.keys_control.append(i)
+			player_1.keys_control.append(i)
 
 	on_players_ready()
 
@@ -183,6 +182,7 @@ func _input(event):
 					players.remove_child(char_clone)
 
 				else:
+
 					img_char_2.modulate = Color(0.267, 0.267, 0.267)
 					players.remove_child(player_2)
 					character.add_child(player_2)
@@ -196,7 +196,6 @@ func _on_ready_btn_pressed():
 	for i in range(0, players.get_child_count()):
 
 		players.get_child(i).visible = true
-		players.get_child(i).process_mode = Node.PROCESS_MODE_INHERIT
 	
 	players.child_scan = true
 
@@ -204,7 +203,6 @@ func _on_ready_btn_pressed():
 
 	get_tree().change_scene_to_file(MAP_SELC)
 
-	print(InputMap.action_get_events(player_1.player_control))
-	print(InputMap.action_get_events(char_clone.player_control))
-
 	print(player_1.keys_control)
+	print(player_2.keys_control)
+	print(char_clone.keys_control)
