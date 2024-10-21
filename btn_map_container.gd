@@ -71,7 +71,6 @@ func on_btn_map_pressed(path):
 	for i in range(0, players.get_child_count()):
 		
 		players.get_child(i).process_mode = Node.PROCESS_MODE_INHERIT
-		print("player 1 controls : " + player_1.keys_control)
 
 func on_btn_map_focused(map):
 

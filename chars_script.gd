@@ -1,96 +1,49 @@
-class_name player_script
-extends CharacterBody2D
+class_name Player extends CharacterBody2D
 
 var SPEED = 300.0
-const JUMP_VELOCITY = -2100
-const GRAVITY = 98.0
+const JUMP_VELOCITY = -700
+
+enum STATE{
+	IDLE,
+	RIGHT,
+	LEFT,
+	UP,
+	DOWN,
+	P,
+	DEFENSE,
+	DOWN_DEFENSE,
+	HITTED
+}
 
 @onready var anim = $AnimatedSprite2D 
 @onready var anim_player = $AnimationPlayer
 @onready var timer = $Timer
+@onready var hit_boxs = $"Attack_hit_boxs"
+@onready var sprite = $"Sprites_1"
+@onready var player_ident = $"Label"
+@onready var hurt_box = $"hurt_box"
+@onready var player_controls = $"PlayerControl"
+@onready var label_current_state = $"current_state"
 
-@onready var player_controls = get_node("/root/PlayersControls")
+var life_points = 100
 
-var attacking : bool = false  # Variable para rastrear si el personaje está atacando
-var move : bool = false  # Varible para determinar si el personaje se esta moviendo
+var actual_life_points : float
 
-@export var player_control : String
+var player_control : String
 
-var keys_control : Array
+func recibe_damage(damage_points : float):
 
-func _ready():
-	pass
+	life_points -= damage_points
 
-# De aca
-func _physics_process(delta):
+	print("La vida actual del " +  player_control + " es igual a " + str(life_points))
 
-	if not is_on_floor():
-		velocity.y += GRAVITY
-		SPEED = 670
+	player_controls.current_state = STATE.HITTED
 
-	else:
-		
-		SPEED = 300
-		velocity.y = 0
-# Hasta acá sabes lo que hace (define las propiedades del salto)
+func defend_damage(damage_points : float):
 
-	# Manejar el ataque
-	if (Input.is_action_just_pressed(player_control) and Input.is_key_pressed(OS.get_keycode_string(keys_control[4].keycode).to_int())) and not attacking:
-		anim_player.play("attack")
-		# anim.play("attack")   Aca tenia un ("attack", false) para que no se repdoduzca en bucle pero lo arregle en el nodo (y a mi me lo rompe)
-		attacking = true  # Establece el estado de ataque como verdadero
+	life_points -= 1
 
-		# var attack_hit = Area2D.new() || para la hitbox del ataque
-	
-	if not attacking: # Si NO esta atacando puede ejecutar todo lo que sigue...
+	print("ataque defendido")
 
-	# Manejar el movimiento vertical
-		if (Input.is_action_just_pressed(player_control) and Input.is_key_pressed(OS.get_keycode_string(keys_control[0].keycode).to_int())) and is_on_floor():
-			velocity.y = JUMP_VELOCITY
-
-		# Manejar el movimiento horizontal
-		var direction = Input.get_axis("ui_left", "ui_right")
-		if Input.is_action_pressed("run") and (direction > 0 or direction < 0):
-			SPEED = 500
-
-		if direction != 0:
-			velocity.x = direction * SPEED
-			move = true
-
-			if move: # SI se esta moviendo puede ejecutarse todo lo que sigue...
-			
-				if direction < 0:
-					anim_player.play("walk_back")
-					 # anim.play("walk_back")
-				else:
-					anim_player.play("walk")
-					 # anim.play("walk")
-		else:
-			anim_player.play("stand")
-			move = false
-			velocity.x = 0
-			#anim.play("stand")
-
-# Si quieren que no se pueda mover mientras ataca borren todo lo que esta depues del else y pongan: move = false
-
-	else: # SI esta atacando se puede ejecutar todo lo que sigue...
-
-			if Input.is_action_just_pressed("ui_accept") and is_on_floor():
-				velocity.y = JUMP_VELOCITY
-
-			var direction = Input.get_axis("ui_left", "ui_right")
-
-			if direction != 0:
-				velocity.x = direction * SPEED
-
-			else:
-				velocity.x = move_toward(velocity.x, 0, SPEED)
-		
-	move_and_slide()
-
-func _on_animation_player_animation_finished(anim_name):
-
-	if anim_name == "attack": # Determina que no se esta atacando cuando termine de ejecutarse la animacion
-		attacking = false
-		print("not atack")
-
+func _on_player_control_show_current_state(state):
+	label_current_state.text = "state= " + str(state)
