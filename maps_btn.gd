@@ -49,6 +49,9 @@ func btn_maps():
 
 					btn_elements[element] = Label.new()
 					btn_elements[0].add_child(btn_elements[element])
+					btn_elements[element].text = map_node.get_child(i).name
+
+					btn_elements[element].position.x = 20
 
 					continue
 
@@ -62,12 +65,6 @@ func btn_maps():
 	print(maps_path)
 
 func on_btn_map_pressed(arena):
-
-	for i in range(0, players.get_child_count()):
-
-		players.get_child(i).visible = true
-		players.get_child(i).process_mode = Node.PROCESS_MODE_INHERIT
-		players.child_scan = true
 
 	map_node.remove_child(arena)
 	get_tree().change_scene_to_file("res://Scenes/versus_mode.tscn")

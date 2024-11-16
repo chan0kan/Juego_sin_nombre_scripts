@@ -1,7 +1,8 @@
 class_name Player extends CharacterBody2D
 
 var SPEED = 300.0
-const JUMP_VELOCITY = -700
+var JUMP_VELOCITY = -600
+const FALL_VELOCITY = 500
 
 enum STATE{
 	IDLE,
@@ -9,11 +10,16 @@ enum STATE{
 	LEFT,
 	UP,
 	DOWN,
-	P,
+	FALLING,
 	DEFENSE,
 	DOWN_DEFENSE,
-	HITTED
+	HITTED,
+	NORMAL_ATTACK,
+	HEAVY_ATTACK,
+	COMBINATION
 }
+
+var current_state : STATE = STATE.IDLE
 
 @onready var anim = $AnimatedSprite2D 
 @onready var anim_player = $AnimationPlayer
@@ -29,19 +35,20 @@ var life_points = 100
 
 var actual_life_points : float
 
+var player_view_direction :	STATE
 var player_control : String
 
-func recibe_damage(damage_points : float):
+func recibe_damage(damage_points:float):
 
 	life_points -= damage_points
 
 	print("La vida actual del " +  player_control + " es igual a " + str(life_points))
 
-	player_controls.current_state = STATE.HITTED
+	current_state = STATE.HITTED
 
 func defend_damage(damage_points : float):
 
-	life_points -= 1
+	life_points -= damage_points
 
 	print("ataque defendido")
 

@@ -1,163 +1,126 @@
 extends Node
 
-signal add_current_state(current_state)
-signal show_current_state(current_state)
+signal add_current_state()
+signal show_current_state()
+signal key_released()
 
-# Asignarle la clase Player al script del characterBody y crea el nodo "PlayerControl" como un nodo externo y luego instancialo a la escena
-# del player.#######
 @onready var player : Player = self.owner
 
 var GRAVITY = ProjectSettings.get_setting("physics/2d/default_gravity")
-
-enum STATE{
-	IDLE,
-	RIGHT,
-	LEFT,
-	UP,
-	DOWN,
-	P,
-	DEFENSE,
-	DOWN_DEFENSE,
-	HITTED
-}
-
-## Emitir la señal cada vez que se cambie de estado ##
-
-@export var current_state : STATE = STATE.IDLE
 
 func gravity(delta):
 	player.velocity.y += GRAVITY * delta
 
 func _input(_event):
 	
-	match current_state:
-		
-		STATE.IDLE:
+	if Input.is_action_just_released("anything"):
+		emit_signal("key_released", player.current_state)
 
-			if Input.is_action_just_pressed(player.player_control + "_left"):
-				current_state = STATE.LEFT
-			if Input.is_action_just_pressed(player.player_control + "_right"):
-				current_state = STATE.RIGHT
-			if Input.is_action_just_pressed(player.player_control + "_defend"):
-				current_state = STATE.DEFENSE
-			elif (Input.is_action_just_pressed(player.player_control + "_jump")):
-				current_state = STATE.UP
-			elif (Input.is_action_just_pressed(player.player_control + "_attack")):
-				current_state = STATE.P
-			elif (Input.is_action_pressed(player.player_control + "_crouch")):
-				current_state = STATE.DOWN
-
-		STATE.RIGHT:
-
-			if Input.is_action_just_released(player.player_control + "_right"):
-				current_state = STATE.IDLE
-			if (Input.is_action_just_pressed(player.player_control + "_jump")):
-				current_state = STATE.UP
-			elif (Input.is_action_just_pressed(player.player_control + "_attack")):
-				current_state = STATE.P
-
-		STATE.LEFT:
-
-			if Input.is_action_just_released(player.player_control + "_left"):
-				current_state = STATE.IDLE
-			if (Input.is_action_just_pressed(player.player_control + "_jump")):
-				current_state = STATE.UP
-			elif (Input.is_action_just_pressed(player.player_control + "_attack")):
-				current_state = STATE.P
-
-		STATE.DEFENSE:
-
-			if Input.is_action_just_released(player.player_control + "_defend"):
-				current_state = STATE.IDLE
-			elif Input.is_action_just_pressed(player.player_control + "_crouch"):
-				current_state = STATE.DOWN_DEFENSE
-		
-		STATE.DOWN_DEFENSE:
-			
-			if Input.is_action_just_released(player.player_control + "_defend"):
-					current_state = STATE.DOWN
-			if Input.is_action_just_released(player.player_control + "_crouch"):
-					current_state = STATE.DEFENSE
-		
-		STATE.DOWN:
-			if Input.is_action_just_released(player.player_control + "_crouch"):
-				current_state = STATE.IDLE
-			if Input.is_action_just_pressed(player.player_control + "_defend"):
-				current_state = STATE.DOWN_DEFENSE
-			if (Input.is_action_just_pressed(player.player_control + "_attack")):
-				current_state = STATE.P
-
-	emit_signal("show_current_state", current_state)
+	basic_state()
 	get_current_state()
 
-func _physics_process(delta): 
+func _physics_process(delta):
+	states_actions()
+	gravity(delta)
+	player.move_and_slide()
+	emit_signal("show_current_state", player.current_state)
 
+func basic_state():
+	# Estado básico para los movimientos y acciones iniciales
+	if player.current_state == player.STATE.IDLE:
+		if Input.is_action_just_pressed(player.player_control + "_left"):
+			player.current_state = player.STATE.LEFT
+		elif Input.is_action_just_pressed(player.player_control + "_right"):
+			player.current_state = player.STATE.RIGHT
+		elif Input.is_action_just_pressed(player.player_control + "_defend"):
+			player.current_state = player.STATE.DEFENSE
+		elif Input.is_action_just_pressed(player.player_control + "_jump"):
+			player.current_state = player.STATE.UP
+		elif Input.is_action_just_pressed(player.player_control + "_attack"):
+			player.current_state = player.STATE.NORMAL_ATTACK
+		elif Input.is_action_pressed(player.player_control + "_crouch"):
+			player.current_state = player.STATE.DOWN
+
+	elif player.current_state == player.STATE.DEFENSE:
+		if Input.is_action_just_released(player.player_control + "_defend"):
+			player.current_state = player.STATE.IDLE
+		elif Input.is_action_just_pressed(player.player_control + "_crouch"):
+			player.current_state = player.STATE.DOWN_DEFENSE
+
+	elif player.current_state == player.STATE.DOWN_DEFENSE:
+		if Input.is_action_just_released(player.player_control + "_defend"):
+			player.current_state = player.STATE.DOWN
+		elif Input.is_action_just_released(player.player_control + "_crouch"):
+			player.current_state = player.STATE.DEFENSE
+
+	elif player.current_state == player.STATE.RIGHT:
+		if Input.is_action_just_released(player.player_control + "_right"):
+			player.current_state = player.STATE.IDLE
+		elif Input.is_action_just_pressed(player.player_control + "_jump"):
+			player.current_state = player.STATE.UP
+		elif Input.is_action_just_pressed(player.player_control + "_attack"):
+			player.current_state = player.STATE.NORMAL_ATTACK
+
+	elif player.current_state == player.STATE.LEFT:
+		if Input.is_action_just_released(player.player_control + "_left"):
+			player.current_state = player.STATE.IDLE
+		elif Input.is_action_just_pressed(player.player_control + "_jump"):
+			player.current_state = player.STATE.UP
+		elif Input.is_action_just_pressed(player.player_control + "_attack"):
+			player.current_state = player.STATE.NORMAL_ATTACK
+
+	elif player.current_state == player.STATE.DOWN:
+		if Input.is_action_just_released(player.player_control + "_crouch"):
+			player.current_state = player.STATE.IDLE
+		elif Input.is_action_just_pressed(player.player_control + "_defend"):
+			player.current_state = player.STATE.DOWN_DEFENSE
+		elif Input.is_action_just_pressed(player.player_control + "_attack"):
+			player.current_state = player.STATE.NORMAL_ATTACK
+
+func states_actions():
+	# Acción según el estado actual del jugador
 	var direction = Input.get_axis(player.player_control + "_left", player.player_control + "_right")
 	
-	match current_state:
-		
-		STATE.IDLE:
+	match player.current_state:
+		player.STATE.IDLE:
 			player.velocity.x = 0
 			player.anim_player.play("idle")
 
-		STATE.RIGHT:
+		player.STATE.RIGHT, player.STATE.LEFT:
 			player.velocity.x = direction * player.SPEED
 			player.anim_player.play("walk")
 
-		STATE.LEFT:
-			player.velocity.x = direction * player.SPEED
-			player.anim_player.play("walk")
-
-		STATE.UP:
-
-			if player.velocity.y == player.JUMP_VELOCITY:
-				player.anim_player.play("fall")
-				print("in fall")
-			else:
-				player.anim_player.play("falling")
-				print("falling")
-
+		player.STATE.UP:
 			player.velocity.y = player.JUMP_VELOCITY
 			player.anim_player.play("jump")
+			if player.velocity.y > 0:  # Cambia a estado de caída si comienza a descender
+				player.current_state = player.STATE.FALLING
 
-		STATE.P:
-			player.velocity.x = 0
-			#cuando el sistema de combinaciones este completo hay que sacar las animaciones como esta de golpe ya que el sistema de combinaciones
-			#se encargara de ejecutarlas
-			#player.anim_player.play("P")
-		
-		STATE.DEFENSE:
+		player.STATE.FALLING:
+			player.velocity.y = player.FALL_VELOCITY
+			player.anim_player.play("falling")
+			if player.is_on_floor():
+				player.current_state = player.STATE.IDLE
+
+		player.STATE.DEFENSE:
 			player.anim_player.play("defend")
-		
-		STATE.DOWN_DEFENSE:
-			
-			pass
-		
-		STATE.DOWN:
+
+		player.STATE.DOWN:
 			player.anim_player.play("crouch")
 
-		STATE.HITTED:
+		player.STATE.HITTED:
 			player.anim_player.play("hit")
-			
-	gravity(delta)
-	player.move_and_slide()
+
+		player.STATE.COMBINATION:
+			pass
 
 func _on_animation_player_animation_finished(anim_name):
-
-	if anim_name == "P":
-		print("not atack")
-		current_state = STATE.IDLE
-	
-	if anim_name == "hit":
-		current_state = STATE.IDLE
-
-	if anim_name == "dash":
-		current_state = STATE.IDLE
-
-	# if anim_name == "UP":
-	# 	current_state = STATE.FALLING
+	if anim_name in ["NORMAL_ATTACK", "UP_ATTACK", "LOW_ATTACK", "jump", "hit", "dash"]:
+		player.current_state = player.STATE.IDLE
+		if anim_name == "jump":
+			player.current_state = player.STATE.FALLING
 
 func get_current_state():
-
-	if current_state != 0:
-		emit_signal("add_current_state", current_state)
+	# Emite la señal de estado actual si no está en IDLE
+	if not player.current_state in [player.STATE.FALLING, player.STATE.IDLE, player.STATE.HITTED]:
+		emit_signal("add_current_state", player.current_state)

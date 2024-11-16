@@ -2,7 +2,7 @@ extends CanvasLayer
 
 signal btn_ready_pressed
 
-@export var characters : PackedScene
+@export var characters : PackedScene	
 
 @onready var character = characters.instantiate()
 
@@ -181,7 +181,5 @@ func _input(event):
 			on_players_ready()
 
 func _on_ready_btn_pressed():
-
-	players.ready_players()
 
 	get_tree().change_scene_to_file("res://Scenes/map_selc.tscn")

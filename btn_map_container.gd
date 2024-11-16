@@ -68,10 +68,6 @@ func on_btn_map_pressed(path):
 	get_tree().change_scene_to_file(path)
 	print_debug("Mapa cambiado a" + " " + str(path))
 
-	for i in range(0, players.get_child_count()):
-		
-		players.get_child(i).process_mode = Node.PROCESS_MODE_INHERIT
-
 func on_btn_map_focused(map):
 
-	map_img_show.texture = map.get_child(1).get_texture()
+	map_img_show.texture = map.get_node("map_img")

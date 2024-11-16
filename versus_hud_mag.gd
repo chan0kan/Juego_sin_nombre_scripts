@@ -9,8 +9,11 @@ extends CanvasLayer
 @onready var label_p1 = $"VBoxContainer/player_1"
 
 func _process(_delta):
-	life_bar_p1.value = players.player_1.life_points
-	life_bar_p2.value = players.player_2.life_points
 
-	label_p1.text = players.player_1.name
-	label_p2.text = players.player_2.name
+	if players.child_scan:
+
+		life_bar_p1.value = players.player_1.life_points
+		life_bar_p2.value = players.player_2.life_points
+
+		label_p1.text = players.player_1.name
+		label_p2.text = players.player_2.name
